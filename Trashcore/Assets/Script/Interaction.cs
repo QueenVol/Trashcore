@@ -11,7 +11,9 @@ public class Interaction : MonoBehaviour
     public LayerMask interactLayer;
 
     [Header("UI")]
-    public TextMeshProUGUI interactText;
+    public GameObject interactUIPrefab;
+    private GameObject currentUI;
+    private TextMeshProUGUI currentUIText;
 
     private Camera cam;
     private PlayerInputActions input;
@@ -30,22 +32,16 @@ public class Interaction : MonoBehaviour
     void Start()
     {
         cam = Camera.main;
-        interactText.gameObject.SetActive(false);
     }
 
     void Update()
     {
         DetectObject();
+        UpdateUIPosition();
     }
 
     void DetectObject()
     {
-        if (currentTrash != null)
-        {
-            currentTrash.SetHighlight(false);
-            currentTrash = null;
-        }
-
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
         RaycastHit hit;
 
@@ -59,24 +55,56 @@ public class Interaction : MonoBehaviour
 
         if (!hitSomething)
         {
-            interactText.gameObject.SetActive(false);
+            ClearCurrentTarget();
             return;
         }
 
         Trash trash = hit.collider.GetComponent<Trash>();
 
-        if (trash != null)
+        if (trash == null)
         {
-            trash.SetHighlight(true);
-            currentTrash = trash;
+            ClearCurrentTarget();
+            return;
+        }
 
-            interactText.text = "Press F to Pick Up: " + trash.itemName;
-            interactText.gameObject.SetActive(true);
-        }
-        else
+        if (trash != currentTrash)
         {
-            interactText.gameObject.SetActive(false);
+            ClearCurrentTarget();
+
+            currentTrash = trash;
+            currentTrash.SetHighlight(true);
+
+            currentUI = Instantiate(interactUIPrefab);
+            currentUIText = currentUI.GetComponentInChildren<TextMeshProUGUI>();
         }
+
+        currentUIText.text = "Press F to Pick Up: " + currentTrash.itemName;
+        currentUI.SetActive(true);
+    }
+
+    void ClearCurrentTarget()
+    {
+        if (currentTrash != null)
+        {
+            currentTrash.SetHighlight(false);
+            currentTrash = null;
+        }
+
+        if (currentUI != null)
+        {
+            Destroy(currentUI);
+            currentUI = null;
+            currentUIText = null;
+        }
+    }
+
+    void UpdateUIPosition()
+    {
+        if (currentUI == null || currentTrash == null) return;
+
+        Vector3 worldPos = currentTrash.transform.position + Vector3.up * 0.5f;
+
+        currentUI.transform.position = worldPos;
     }
 
     void TryInteract()
@@ -84,7 +112,6 @@ public class Interaction : MonoBehaviour
         if (currentTrash == null) return;
 
         currentTrash.OnPick();
-        interactText.gameObject.SetActive(false);
-        currentTrash = null;
+        ClearCurrentTarget();
     }
 }

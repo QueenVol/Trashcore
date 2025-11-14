@@ -263,6 +263,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Trash
   itemName: Trash
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!136 &107018106
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -719,10 +720,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Interaction
   interactDistance: 3
+  interactRadius: 0.4
   interactLayer:
     serializedVersion: 2
     m_Bits: 64
-  interactText: {fileID: 1397216152}
+  interactUIPrefab: {fileID: 6952534745202162669, guid: 05ef4d544cb6a9c4badbf19732081b9c, type: 3}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -917,7 +919,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &877835055
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1667,7 +1669,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 331469375}
   - {fileID: 1900192060}
-  - {fileID: 877835058}
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 82518319}
@@ -1677,3 +1678,4 @@ SceneRoots:
   - {fileID: 1848848212}
   - {fileID: 1879924554}
   - {fileID: 107018109}
+  - {fileID: 877835058}
