@@ -19,6 +19,7 @@ public class Interaction : MonoBehaviour
     private PlayerInputActions input;
 
     private Trash currentTrash;
+    private Balloon currentBalloon;
 
     void Awake()
     {
@@ -45,13 +46,7 @@ public class Interaction : MonoBehaviour
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
         RaycastHit hit;
 
-        bool hitSomething = Physics.SphereCast(
-            ray,
-            interactRadius,
-            out hit,
-            interactDistance,
-            interactLayer
-        );
+        bool hitSomething = Physics.SphereCast(ray, interactRadius, out hit, interactDistance, interactLayer);
 
         if (!hitSomething)
         {
@@ -60,14 +55,15 @@ public class Interaction : MonoBehaviour
         }
 
         Trash trash = hit.collider.GetComponent<Trash>();
+        Balloon balloon = hit.collider.GetComponent<Balloon>();
 
-        if (trash == null)
+        if (trash == null && balloon == null)
         {
             ClearCurrentTarget();
             return;
         }
 
-        if (trash != currentTrash)
+        if (trash != null && trash != currentTrash)
         {
             ClearCurrentTarget();
 
@@ -78,7 +74,23 @@ public class Interaction : MonoBehaviour
             currentUIText = currentUI.GetComponentInChildren<TextMeshProUGUI>();
         }
 
-        currentUIText.text = "Press F to Pick Up: " + currentTrash.itemName;
+        if (balloon != null && balloon != currentBalloon)
+        {
+            ClearCurrentTarget();
+
+            currentBalloon = balloon;
+            currentBalloon.SetHighlight(true);
+
+            currentUI = Instantiate(interactUIPrefab);
+            currentUIText = currentUI.GetComponentInChildren<TextMeshProUGUI>();
+        }
+
+        if (currentTrash != null)
+            currentUIText.text = "Press F to Pick Up: " + currentTrash.itemName;
+
+        if (currentBalloon != null)
+            currentUIText.text = "Press F to Pick Up: " + currentBalloon.itemName;
+
         currentUI.SetActive(true);
     }
 
@@ -88,6 +100,12 @@ public class Interaction : MonoBehaviour
         {
             currentTrash.SetHighlight(false);
             currentTrash = null;
+        }
+
+        if (currentBalloon != null)
+        {
+            currentBalloon.SetHighlight(false);
+            currentBalloon = null;
         }
 
         if (currentUI != null)
@@ -100,18 +118,35 @@ public class Interaction : MonoBehaviour
 
     void UpdateUIPosition()
     {
-        if (currentUI == null || currentTrash == null) return;
+        if (currentUI == null) return;
 
-        Vector3 worldPos = currentTrash.transform.position + Vector3.up * 0.5f;
+        Transform target = null;
 
+        if (currentTrash != null)
+            target = currentTrash.transform;
+        else if (currentBalloon != null)
+            target = currentBalloon.transform;
+
+        if (target == null) return;
+
+        Vector3 worldPos = target.position + Vector3.up * 0.5f;
         currentUI.transform.position = worldPos;
     }
 
     void TryInteract()
     {
-        if (currentTrash == null) return;
+        if (currentTrash != null)
+        {
+            currentTrash.OnPick();
+            ClearCurrentTarget();
+            return;
+        }
 
-        currentTrash.OnPick();
-        ClearCurrentTarget();
+        if (currentBalloon != null)
+        {
+            var playerFly = GetComponent<Flight>();
+            currentBalloon.OnPick(playerFly);
+            ClearCurrentTarget();
+        }
     }
 }
