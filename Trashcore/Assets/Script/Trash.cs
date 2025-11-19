@@ -5,21 +5,35 @@ public class Trash : MonoBehaviour
     public string itemName = "Trash";
 
     private Renderer rend;
-    private Color originalColor;
-    public Color highlightColor = Color.yellow;
+    private Material baseMaterial;
+    private Material outlineMaterial;
+
+    private Material[] matsNormal;
+    private Material[] matsHighlighted;
 
     void Start()
     {
         rend = GetComponent<Renderer>();
-        originalColor = rend.material.color;
+
+        baseMaterial = rend.materials[0];
+        outlineMaterial = rend.materials[1];
+
+        matsNormal = new Material[] { baseMaterial };
+        matsHighlighted = new Material[] { baseMaterial, outlineMaterial };
+
+        rend.materials = matsNormal;
     }
 
     public void SetHighlight(bool state)
     {
         if (state)
-            rend.material.color = highlightColor;
+        {
+            rend.materials = matsHighlighted;
+        }
         else
-            rend.material.color = originalColor;
+        {
+            rend.materials = matsNormal;
+        }
     }
 
     public void OnPick()
