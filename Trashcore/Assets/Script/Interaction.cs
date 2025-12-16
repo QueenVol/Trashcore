@@ -38,7 +38,6 @@ public class Interaction : MonoBehaviour
     void Update()
     {
         DetectObject();
-        UpdateUIPosition();
     }
 
     void DetectObject()
@@ -114,23 +113,6 @@ public class Interaction : MonoBehaviour
             currentUI = null;
             currentUIText = null;
         }
-    }
-
-    void UpdateUIPosition()
-    {
-        if (currentUI == null) return;
-
-        Transform target = null;
-
-        if (currentTrash != null)
-            target = currentTrash.transform;
-        else if (currentBalloon != null)
-            target = currentBalloon.transform;
-
-        if (target == null) return;
-
-        Vector3 worldPos = target.position + Vector3.up * 0.5f;
-        currentUI.transform.position = worldPos;
     }
 
     void TryInteract()
